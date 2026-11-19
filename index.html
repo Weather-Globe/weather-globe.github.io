@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Weather Map</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="cesiumContainer"></div>
+
+    <div class="sidebar">
+        <div class="map-modes">
+            <button id="mode-scheme" class="active">Scheme</button>
+            <button id="mode-satellite">Satellite</button>
+            <button id="mode-hybrid">Hybrid</button>
+        </div>
+
+        <!-- 🔥 НОВАЯ КНОПКА ДЕНЬ/НОЧЬ -->
+        <button id="toggle-day-night" class="ui-btn">☀️ Enable Day / Night</button>
+
+        <div class="weather-widget">
+            <div class="search-box">
+                <input type="text" id="cityInput" placeholder="Search city...">
+                <button id="searchBtn">➔</button>
+            </div>
+            
+            <div class="loader" id="loader"></div>
+            
+            <div class="weather-info" id="weatherInfo">
+                <h2 id="cityName">Loading...</h2>
+                <div class="weather-main">
+                    <div id="weatherIconContainer" class="icon-container"></div>
+                    <span id="temperature" class="temp">-°C</span>
+                </div>
+                <p id="condition" class="condition">-</p>
+                
+                <div class="details">
+                    <div class="detail"><span>Feels Like</span><strong id="feelsLike">-</strong></div>
+                    <div class="detail"><span>Humidity</span><strong id="humidity">-</strong></div>
+                    <div class="detail"><span>Wind</span><strong id="wind">-</strong></div>
+                </div>
+
+                <div class="chart-container" id="chartContainer" style="display: none;">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+
+                <button id="resetViewBtn">Reset View</button>
+            </div>
+            <div class="error" id="errorMsg">City not found</div>
+        </div>
+
+        <div class="weather-filters">
+            <h3>Weather Filters</h3>
+            <div class="filter-grid">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="clear">Clear</button>
+                <button class="filter-btn" data-filter="clouds">Clouds</button>
+                <button class="filter-btn" data-filter="rain">Rain</button>
+                <button class="filter-btn" data-filter="snow">Snow</button>
+                <button class="filter-btn" data-filter="wind">Wind</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
