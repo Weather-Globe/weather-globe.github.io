@@ -8,39 +8,52 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
     minimumZoomDistance: 100, maximumZoomDistance: 50000000
 });
 
-// Устанавливаем реальное текущее время для Солнца
 viewer.clock.currentTime = Cesium.JulianDate.now();
 viewer.clock.shouldAnimate = true;
 
-const layerScheme = new Cesium.OpenStreetMapImageryProvider({ url: 'https://tile.openstreetmap.org/' });
-const layerSatellite = new Cesium.UrlTemplateImageryProvider({ url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maximumLevel: 19 });
-const layerLabels = new Cesium.UrlTemplateImageryProvider({ url: 'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', maximumLevel: 19 });
+// Слой Схемы (OpenStreetMap)
+const layerScheme = new Cesium.OpenStreetMapImageryProvider({
+    url: 'https://tile.openstreetmap.org/'
+});
 
-// Слой огней городов ночью (NASA Earth at Night)
+// Слой Спутника (ArcGIS World Imagery)
+const layerSatellite = new Cesium.UrlTemplateImageryProvider({ 
+    url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
+    maximumLevel: 19 
+});
+
+// 🔥 СЛОЙ ПОДПИСЕЙ (ArcGIS World Boundaries and Places - жирный контрастный текст)
+const layerLabels = new Cesium.UrlTemplateImageryProvider({
+    url: 'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+    maximumLevel: 19
+});
+
+// Слой Ночных огней (NASA)
 const layerNightLights = new Cesium.UrlTemplateImageryProvider({ 
     url: 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CityLights_2012/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg',
     maximumLevel: 8 
 });
 
-const layerClouds = new Cesium.WebMapServiceImageryProvider({ url: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi', layers: 'nexrad-n0r', parameters: { transparent: true, format: 'image/png' } });
+// Слой Облаков
+const layerClouds = new Cesium.WebMapServiceImageryProvider({ 
+    url: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi', 
+    layers: 'nexrad-n0r', 
+    parameters: { transparent: true, format: 'image/png' } 
+});
 
 let globalCloudLayer = null;
 let isLightingEnabled = false;
 
-// 🔥 ИСПРАВЛЕННАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ СЛОЕВ
 function setMapMode(mode) {
     viewer.imageryLayers.removeAll();
     
     if (mode === 'scheme') {
         viewer.imageryLayers.addImageryProvider(layerScheme);
     } else if (mode === 'satellite') {
-        // ВСЕГДА ставим качественный спутник на основу
         viewer.imageryLayers.addImageryProvider(layerSatellite);
-        
-        // Если включен ночной режим, накладываем огни СВЕРХУ
         if (isLightingEnabled) {
             const nightLayer = viewer.imageryLayers.addImageryProvider(layerNightLights);
-            nightLayer.alpha = 0.6; // Делаем огни полупрозрачными
+            nightLayer.alpha = 0.6; 
         }
     } else if (mode === 'hybrid') {
         viewer.imageryLayers.addImageryProvider(layerSatellite);
@@ -78,7 +91,6 @@ dayNightBtn.addEventListener('click', () => {
         dayNightBtn.textContent = '🌙 Disable Day / Night';
         viewer.scene.skyAtmosphere.brightnessShift = -0.4;
         
-        // Перезагружаем текущий режим, чтобы подтянулись огни
         if (document.getElementById('mode-scheme').classList.contains('active')) {
             setMapMode('satellite');
         } else if (document.getElementById('mode-satellite').classList.contains('active')) {
@@ -170,12 +182,12 @@ function createMarkerImage(title, value, isSelected = false, isWind = false) {
         const boxWidth = maxTextWidth + 20;
         const boxHeight = 36;
         
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillStyle = '#ffffff'; 
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(canvas.width / 2 - boxWidth / 2, textY - 20, boxWidth, boxHeight, 8);
         else ctx.rect(canvas.width / 2 - boxWidth / 2, textY - 20, boxWidth, boxHeight);
         ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
         ctx.lineWidth = 1;
         ctx.stroke();
         
@@ -354,23 +366,10 @@ async function fetchWeatherInBatches(locations) {
 }
 
 async function loadHierarchy() {
-    const countries = [ { name: "USA", lat: 38.90, lon: -77.03, country: "Country" }, { name: "Brazil", lat: -15.79, lon: -47.89, country: "Country" }, { name: "Russia", lat: 55.75, lon: 37.61, country: "Country" }, { name: "China", lat: 39.90, lon: 116.40, country: "Country" }, { name: "Australia", lat: -35.28, lon: 149.13, country: "Country" }, { name: "India", lat: 28.61, lon: 77.20, country: "Country" }, { name: "Uzbekistan", lat: 41.29, lon: 69.24, country: "Country" }, { name: "Egypt", lat: 30.04, lon: 31.23, country: "Country" }, { name: "Canada", lat: 45.42, lon: -75.69, country: "Country" }, { name: "Japan", lat: 35.68, lon: 139.69, country: "Country" }, { name: "UK", lat: 51.50, lon: -0.12, country: "Country" }, { name: "France", lat: 48.85, lon: 2.35, country: "Country" }, { name: "Germany", lat: 52.52, lon: 13.40, country: "Country" }, { name: "Turkey", lat: 39.93, lon: 32.85, country: "Country" }, { name: "Mexico", lat: 19.43, lon: -99.13, country: "Country" }, { name: "Argentina", lat: -34.60, lon: -58.38, country: "Country" }, { name: "South Africa", lat: -25.74, lon: 28.18, country: "Country" }, { name: "Saudi Arabia", lat: 24.71, lon: 46.67, country: "Country" }, { name: "Indonesia", lat: -6.20, lon: 106.84, country: "Country" }, { name: "Kazakhstan", lat: 51.16, lon: 71.47, country: "Country" } ];
     const cities = [ { name: "New York", lat: 40.71, lon: -74.00 }, { name: "Los Angeles", lat: 34.05, lon: -118.24 }, { name: "Chicago", lat: 41.87, lon: -87.62 }, { name: "Toronto", lat: 43.65, lon: -79.34 }, { name: "Mexico City", lat: 19.43, lon: -99.13 }, { name: "Sao Paulo", lat: -23.55, lon: -46.63 }, { name: "Rio de Janeiro", lat: -22.90, lon: -43.17 }, { name: "Buenos Aires", lat: -34.60, lon: -58.38 }, { name: "London", lat: 51.50, lon: -0.12 }, { name: "Paris", lat: 48.85, lon: 2.35 }, { name: "Berlin", lat: 52.52, lon: 13.40 }, { name: "Madrid", lat: 40.41, lon: -3.70 }, { name: "Rome", lat: 41.90, lon: 12.49 }, { name: "Istanbul", lat: 41.00, lon: 28.97 }, { name: "Moscow", lat: 55.75, lon: 37.61 }, { name: "Cairo", lat: 30.04, lon: 31.23 }, { name: "Lagos", lat: 6.52, lon: 3.37 }, { name: "Johannesburg", lat: -26.20, lon: 28.04 }, { name: "Dubai", lat: 25.20, lon: 55.27 }, { name: "Mumbai", lat: 19.07, lon: 72.87 }, { name: "Delhi", lat: 28.70, lon: 77.10 }, { name: "Bangkok", lat: 13.75, lon: 100.50 }, { name: "Singapore", lat: 1.35, lon: 103.81 }, { name: "Jakarta", lat: -6.20, lon: 106.84 }, { name: "Beijing", lat: 39.90, lon: 116.40 }, { name: "Shanghai", lat: 31.23, lon: 121.47 }, { name: "Hong Kong", lat: 22.31, lon: 114.16 }, { name: "Seoul", lat: 37.56, lon: 126.97 }, { name: "Tokyo", lat: 35.68, lon: 139.69 }, { name: "Sydney", lat: -33.86, lon: 151.20 }, { name: "Tashkent", lat: 41.29, lon: 69.24 }, { name: "Almaty", lat: 43.22, lon: 76.85 } ];
 
-    const allLocations = [...countries, ...cities];
-    const weatherArray = await fetchWeatherInBatches(allLocations);
+    const weatherArray = await fetchWeatherInBatches(cities);
     let index = 0;
-
-    for (const c of countries) {
-        const current = weatherArray[index++]?.current;
-        if (!current) continue;
-        const img = await createMarkerImage(c.name, Math.round(current.temperature_2m), false, false);
-        const entity = viewer.entities.add({
-            position: Cesium.Cartesian3.fromDegrees(c.lon, c.lat, 5000),
-            billboard: { image: img, verticalOrigin: Cesium.VerticalOrigin.BOTTOM, scale: 1.2, distanceDisplayCondition: new Cesium.DistanceDisplayCondition(4000000.0, 12000000.0) }
-        });
-        allEntitiesMap[`coun-${c.name}`] = { entity, code: current.weather_code, wind: current.wind_speed_10m, temp: current.temperature_2m, feelsLike: current.apparent_temperature, humidity: current.relative_humidity_2m, name: c.name, country: "Country", lat: c.lat, lon: c.lon, type: 'country' };
-    }
 
     for (const c of cities) {
         const current = weatherArray[index++]?.current;
@@ -378,7 +377,13 @@ async function loadHierarchy() {
         const img = await createMarkerImage(c.name, Math.round(current.temperature_2m), false, false);
         const entity = viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(c.lon, c.lat),
-            billboard: { image: img, verticalOrigin: Cesium.VerticalOrigin.BOTTOM, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, scale: 1.0, distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 4000000.0), disableDepthTestDistance: Number.POSITIVE_INFINITY }
+            billboard: { 
+                image: img, 
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM, 
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, 
+                scale: 1.0, 
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 12000000.0)
+            }
         });
         allEntitiesMap[`city-${c.name}`] = { entity, code: current.weather_code, wind: current.wind_speed_10m, temp: current.temperature_2m, feelsLike: current.apparent_temperature, humidity: current.relative_humidity_2m, name: c.name, country: "", lat: c.lat, lon: c.lon, type: 'city' };
     }
