@@ -1,4 +1,4 @@
-// === 1. ИНИЦИАЛИЗАЦИЯ 3D-КАРТЫ (CESIUM) ===
+// === 1. INITIALIZATION OF THE 3D MAP (CESIUM) ===
 const viewer = new Cesium.Viewer('cesiumContainer', {
     baseLayer: false, 
     terrainProvider: new Cesium.EllipsoidTerrainProvider(),
@@ -11,30 +11,30 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
 viewer.clock.currentTime = Cesium.JulianDate.now();
 viewer.clock.shouldAnimate = true;
 
-// Слой Схемы (OpenStreetMap)
+// The Schema Layer (OpenStreetMap)
 const layerScheme = new Cesium.OpenStreetMapImageryProvider({
     url: 'https://tile.openstreetmap.org/'
 });
 
-// Слой Спутника (ArcGIS World Imagery)
+// The Satellite Layer (ArcGIS World Imagery)
 const layerSatellite = new Cesium.UrlTemplateImageryProvider({ 
     url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
     maximumLevel: 19 
 });
 
-// 🔥 СЛОЙ ПОДПИСЕЙ (ArcGIS World Boundaries and Places - жирный контрастный текст)
+// 🔥 The Labels Layer (ArcGIS World Boundaries and Places - bold contrasting text)
 const layerLabels = new Cesium.UrlTemplateImageryProvider({
     url: 'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
     maximumLevel: 19
 });
 
-// Слой Ночных огней (NASA)
+// The Night Lights Layer (NASA)
 const layerNightLights = new Cesium.UrlTemplateImageryProvider({ 
     url: 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CityLights_2012/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg',
     maximumLevel: 8 
 });
 
-// Слой Облаков
+// The Clouds Layer
 const layerClouds = new Cesium.WebMapServiceImageryProvider({ 
     url: 'https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi', 
     layers: 'nexrad-n0r', 
@@ -79,7 +79,7 @@ document.getElementById('mode-scheme').addEventListener('click', () => setMapMod
 document.getElementById('mode-satellite').addEventListener('click', () => setMapMode('satellite'));
 document.getElementById('mode-hybrid').addEventListener('click', () => setMapMode('hybrid'));
 
-// === ЛОГИКА ДЕНЬ / НОЧЬ ===
+// === DAY/NIGHT LOGIC ===
 const dayNightBtn = document.getElementById('toggle-day-night');
 
 dayNightBtn.addEventListener('click', () => {
@@ -111,7 +111,7 @@ dayNightBtn.addEventListener('click', () => {
     }
 });
 
-// === 2. ВРАЩЕНИЕ ===
+// === 2. ROTATION ===
 let autoRotate = true;
 let cloudPulseTime = 0;
 let selectedCityEntity = null; 
@@ -128,7 +128,7 @@ viewer.clock.onTick.addEventListener(function() {
     }
 });
 
-// === 3. ПЕРЕМЕННЫЕ ===
+// === 3. VARIABLES ===
 const cityInput = document.getElementById('cityInput');
 const searchBtn = document.getElementById('searchBtn');
 const loader = document.getElementById('loader');
@@ -143,7 +143,7 @@ let forecastChartInstance = null;
 const bluePinIcon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQyODVmNCIgZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN3ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==';
 const redPinIcon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2VhNDMzNSIgZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDljMCA1LjI1IDcgMTMgNyAxM3M3LTcuNzUgNy0xM2MwLTMuODctMy4xMy03LTctN3ptMCA5LjVjLTEuMzggMC0yLjUtMS4xMi0yLjUtMi41czEuMTItMi41IDIuNS0yLjUgMi41IDEuMTIgMi41IDIuNS0xLjEyIDIuNS0yLjUgMi41eiIvPjwvc3ZnPg==';
 
-// === 4. ФУНКЦИИ ===
+// === 4. FUNCTIONS ===
 function getWeatherDetails(code) {
     const mapping = {
         0: { text: "Clear sky" }, 1: { text: "Mainly clear" }, 2: { text: "Partly cloudy" }, 3: { text: "Overcast" },
@@ -297,7 +297,7 @@ async function processMapCoordinate(lat, lon) {
             placeName = geoData.principalSubdivision;
             countryName = geoData.countryName;
         }
-    } catch (e) { console.warn("Не удалось определить название места"); }
+    } catch (e) { console.warn("Couldn't identify the place name"); }
 
     try {
         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m`);
@@ -360,7 +360,7 @@ async function fetchWeatherInBatches(locations) {
             const data = await res.json();
             const arr = Array.isArray(data) ? data : [data];
             results.push(...arr);
-        } catch (e) { console.error("Ошибка пакета:", e); }
+        } catch (e) { console.error("Package Error:", e); }
     }
     return results;
 }
@@ -389,7 +389,7 @@ async function loadHierarchy() {
     }
 }
 
-// === 6. ФИЛЬТРАЦИЯ ===
+// === 6. FILTERING ===
 function applyFilter(filterType) {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         if (btn.dataset.filter === filterType) btn.classList.add('active');
@@ -423,7 +423,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => applyFilter(e.target.dataset.filter));
 });
 
-// === 7. ПОИСК ===
+// === 7. SEARCH ===
 async function searchCity() {
     const city = cityInput.value.trim();
     if (!city) return;
@@ -493,7 +493,7 @@ function locateUser() {
                 position: Cesium.Cartesian3.fromDegrees(lon, lat),
                 point: { pixelSize: 12, color: Cesium.Color.RED, outlineColor: Cesium.Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY }
             });
-        }, (error) => console.warn("Геолокация отклонена.", error));
+        }, (error) => console.warn("Geolocation rejected.", error));
     }
 }
 
